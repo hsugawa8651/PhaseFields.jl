@@ -2,7 +2,6 @@
 DiffEqCallbacks = "459566f4-90b8-5000-8ac3-15dfb0a30def"
 DifferentiationInterface = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-OpenCALPHAD = "f22b17f6-ccb9-4067-ab50-5d8cfb3cb77d"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 PhaseFields = "6af1007f-d462-454c-a7f3-5589aa52c87f"
 SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
