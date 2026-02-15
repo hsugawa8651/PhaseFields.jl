@@ -1,0 +1,51 @@
+# Julia package artifacts
+Manifest.toml
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+deps/deps.jl
+deps/build.log
+deps/usr/
+
+# Documentation build
+docs/build/
+docs/site/
+
+# Test artifacts
+/test/Manifest.toml
+
+# IDE and editors
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Local environment
+.env
+.envrc
+
+# Coverage
+/coverage/
+lcov.info
+
+# Local configuration
+CLAUDE.md
+.claude/
+.gemini/
+
+# Paper build artifacts
+paper/paper.pdf
+
+# Simulation output
+output/
+output_*/
