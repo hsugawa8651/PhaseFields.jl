@@ -46,6 +46,10 @@ CLAUDE.md
 # Paper build artifacts
 paper/paper.pdf
 
+# Example output images (regenerable)
+examples/*.png
+examples/*.gif
+
 # Simulation output
 output/
 output_*/
