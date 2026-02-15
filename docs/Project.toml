@@ -1,6 +1,6 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-PhaseFields = "6dd94551-a315-4f64-99d0-dc69a088a2c8"
+PhaseFields = "6af1007f-d462-454c-a7f3-5589aa52c87f"
 
 [compat]
 Documenter = "1"
