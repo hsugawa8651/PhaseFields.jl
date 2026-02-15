@@ -1,5 +1,8 @@
 # PhaseFields.jl
 
+[![CI](https://github.com/hsugawa8651/PhaseFields.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/hsugawa8651/PhaseFields.jl/actions/workflows/CI.yml)
+[![Documentation](https://github.com/hsugawa8651/PhaseFields.jl/actions/workflows/Docs.yml/badge.svg)](https://hsugawa8651.github.io/PhaseFields.jl/dev/)
+
 A Julia package for phase field simulations with CALPHAD thermodynamics coupling.
 
 ## Features (v0.1)
