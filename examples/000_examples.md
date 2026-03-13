@@ -1,6 +1,6 @@
 # PhaseFields.jl Examples
 
-Last-Modified: 2026-01-26
+Last-Modified: 2026-03-14
 
 ## Numbering System
 
@@ -34,6 +34,7 @@ Last-Modified: 2026-01-26
 |------|----------|-------------|
 | 201_spinodal_1d.jl | Standalone | 1D spinodal decomposition |
 | 251_spinodal_2d.jl | DiffEq | 2D spinodal decomposition with unified solve API |
+| 252_spinodal_2d_long.jl | DiffEq | 2D spinodal decomposition — long-time evolution |
 
 ### 3xx: Solidification
 
@@ -46,6 +47,7 @@ Last-Modified: 2026-01-26
 | 305_stefan_problem_1d.jl | Standalone | Classical Stefan problem |
 | 351_diffeq_thermal_solidification.jl | DiffEq | Thermal solidification with DiffEq |
 | 352_thermal_2d.jl | DiffEq | 2D Thermal phase field with unified solve API |
+| 352_thermal_2d_phase_only.jl | DiffEq | 2D Thermal phase-only animation for session image |
 | 353_wbm_2d.jl | DiffEq | 2D WBM binary alloy with unified solve API |
 | 354_kks_2d.jl | DiffEq | 2D KKS binary alloy with unified solve API |
 | 381_calphad_coupling_demo.jl | CALPHAD | OpenCALPHAD.jl integration demo |
