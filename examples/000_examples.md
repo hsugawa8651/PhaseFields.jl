@@ -1,6 +1,6 @@
 # PhaseFields.jl Examples
 
-Last-Modified: 2026-03-14
+Last-Modified: 2026-03-17
 
 ## Numbering System
 
@@ -35,6 +35,7 @@ Last-Modified: 2026-03-14
 | 201_spinodal_1d.jl | Standalone | 1D spinodal decomposition |
 | 251_spinodal_2d.jl | DiffEq | 2D spinodal decomposition with unified solve API |
 | 252_spinodal_2d_long.jl | DiffEq | 2D spinodal decomposition — long-time evolution |
+| 253_spinodal_1d.jl | DiffEq | 1D spinodal decomposition with unified solve API |
 
 ### 3xx: Solidification
 

@@ -89,5 +89,8 @@ cahn_hilliard_stability_dt
 
 ## See Also
 
-- [201_spinodal_1d.jl](https://github.com/hsugawa8651/PhaseFields.jl/blob/main/examples/201_spinodal_1d.jl) - 1D spinodal decomposition
+- [201_spinodal_1d.jl](https://github.com/hsugawa8651/PhaseFields.jl/blob/main/examples/201_spinodal_1d.jl) - 1D spinodal decomposition (standalone)
+- [251_spinodal_2d.jl](https://github.com/hsugawa8651/PhaseFields.jl/blob/main/examples/251_spinodal_2d.jl) - 2D spinodal decomposition (DiffEq)
+- [252_spinodal_2d_long.jl](https://github.com/hsugawa8651/PhaseFields.jl/blob/main/examples/252_spinodal_2d_long.jl) - 2D spinodal decomposition — long-time evolution (DiffEq)
+- [253_spinodal_1d.jl](https://github.com/hsugawa8651/PhaseFields.jl/blob/main/examples/253_spinodal_1d.jl) - 1D spinodal decomposition (DiffEq)
 - [401_ostwald_ripening.jl](https://github.com/hsugawa8651/PhaseFields.jl/blob/main/examples/401_ostwald_ripening.jl) - Ostwald ripening (multi-particle coarsening)
