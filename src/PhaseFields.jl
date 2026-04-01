@@ -53,6 +53,10 @@ include("integration/callbacks.jl")
 # Problem solvers (must be after diffeq.jl for UniformGrid1D)
 include("problems/solvers.jl")
 
+# Snapshot types for plotting (must be after diffeq.jl for grid types)
+include("snapshot.jl")
+include("plotting.jl")
+
 # =============================================================================
 # Gridap Extension - Placeholder for extension
 # These are implemented by ext/GridapExt.jl when Gridap is loaded
@@ -263,6 +267,10 @@ export extract_thermal_solution
 export WBMODEParams, wbm_ode!
 export CahnHilliardODEParams, cahn_hilliard_ode!
 export KKSODEParams, kks_ode!
+
+# Exports - Snapshot types (for plotting)
+export FieldSnapshot1D, SpaceTimeSnapshot1D, FieldSnapshot2D
+export plot_field, animate_field, savefig_publication
 
 # Exports - Callbacks
 export interface_position_1d, solid_fraction
