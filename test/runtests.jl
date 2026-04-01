@@ -23,6 +23,9 @@ import DifferentiationInterface as DI
     include("test_grids_2d.jl")
     include("test_problems.jl")  # Test 1-7 only (solve tests separated)
 
+    # Snapshot types for plotting
+    include("test_snapshot.jl")
+
     # OpenCALPHAD extension (DB calls only, no solve)
     # Skip if OpenCALPHAD is not available (weakdep, not registered yet)
     if Base.find_package("OpenCALPHAD") !== nothing

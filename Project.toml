@@ -15,10 +15,14 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 [weakdeps]
 Gridap = "56d4f2e9-7ea1-5844-9cf6-b9c51ca7ce8e"
 OpenCALPHAD = "f22b17f6-ccb9-4067-ab50-5d8cfb3cb77d"
+PythonPlot = "274fc56d-3b97-40fa-a1cd-1b4a50311bf9"
+RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 
 [extensions]
 GridapExt = "Gridap"
 OpenCALPHADExt = "OpenCALPHAD"
+PhaseFieldsPythonPlotExt = "PythonPlot"
+PhaseFieldsRecipesBaseExt = "RecipesBase"
 
 [compat]
 DiffEqCallbacks = "4"
@@ -27,6 +31,8 @@ ForwardDiff = "0.10"
 Gridap = "0.17, 0.18"
 OpenCALPHAD = "0.1"
 OrdinaryDiffEq = "6"
+PythonPlot = "1"
+RecipesBase = "1"
 SciMLBase = "2"
 julia = "1.10"
 
