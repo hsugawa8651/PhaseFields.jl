@@ -25,6 +25,7 @@ makedocs(
             "DifferentialEquations.jl" => "integration/diffeq.md",
             "CALPHAD Coupling" => "integration/calphad.md",
         ],
+        "Plotting" => "plotting.md",
         "Reference" => "reference/common.md",
     ],
 )
