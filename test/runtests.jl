@@ -26,6 +26,10 @@ import DifferentiationInterface as DI
     # Snapshot types for plotting
     include("test_snapshot.jl")
 
+    # PythonPlot extension: 3-layer plotting API (loads PythonPlot, so must run
+    # AFTER test_snapshot.jl which exercises the not-loaded fallbacks)
+    include("test_publication.jl")
+
     # OpenCALPHAD extension (DB calls only, no solve)
     # Skip if OpenCALPHAD is not available (weakdep, not registered yet)
     if Base.find_package("OpenCALPHAD") !== nothing

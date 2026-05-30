@@ -13,6 +13,8 @@ docs/site/
 
 # Test artifacts
 /test/Manifest.toml
+# CondaPkg-generated environment (PythonPlot/matplotlib via Conda)
+.CondaPkg/
 
 # IDE and editors
 *.swp

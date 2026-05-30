@@ -6,7 +6,7 @@ PhaseFields.jl provides snapshot types and [RecipesBase.jl](https://github.com/J
 |-----------|---------|---------------|
 | RecipesBaseExt | `using RecipesBase` (or any backend) | `plot(snapshot)` recipes for all snapshot types |
 | PlotsExt | `using Plots` | `plot_field`, `animate_field` (planned) |
-| PythonPlotExt | `using PythonPlot` | `savefig_publication` (planned) |
+| PythonPlotExt | `using PythonPlot` | `plot_on_axis!`, `figure_publication`, `savefig_publication` |
 
 ```julia
 using PhaseFields
@@ -93,3 +93,57 @@ Override any recipe attribute with standard keyword arguments:
 ```julia
 plot(snap, title="Custom Title", seriescolor=:plasma, size=(800, 600))
 ```
+
+---
+
+## Publication-quality output (PythonPlot)
+
+`using PythonPlot` enables a three-layer [matplotlib](https://matplotlib.org/)-based
+API for publication figures. Install with `pkg> add PythonPlot` (matplotlib is
+provided automatically via Conda). These functions are not exported; call them as
+`PhaseFields.plot_on_axis!` / `PhaseFields.figure_publication`.
+
+| Layer | Function | Returns | Use |
+|-------|----------|---------|-----|
+| L1 | `PhaseFields.plot_on_axis!(ax, snap; ...)` | `ax` | draw onto your own matplotlib axis (compose subplots) |
+| L2 | `PhaseFields.figure_publication(snap; ...)` | `(fig, ax)` | get a sized figure + axis to tweak before saving |
+| L3 | `savefig_publication(snap, path; ...)` | `path` | one-shot save to PDF or PNG (by extension) |
+
+```julia
+using PhaseFields, PythonPlot
+
+grid = UniformGrid2D(Nx=64, Ny=64, Lx=1.0, Ly=1.0)
+snap = FieldSnapshot2D(grid, field, 0.5, :φ; colormap=:viridis)
+
+# L3 — one-shot save (format from the file extension)
+savefig_publication(snap, "phi.pdf")
+savefig_publication(snap, "phi.png")
+
+# L2 — adjust before saving
+fig, ax = PhaseFields.figure_publication(snap; axis_width_cm=8.0, axis_height_cm=6.0)
+ax.set_title("My field")
+fig.savefig("phi_custom.pdf")
+PythonPlot.close(fig)
+
+# L1 — compose into your own subplot grid
+fig = PythonPlot.figure()
+ax = fig.add_subplot(1, 2, 1)
+PhaseFields.plot_on_axis!(ax, snap)
+```
+
+Supported snapshots: `FieldSnapshot1D` (single field, or multiple fields stacked
+vertically by L3), `SpaceTimeSnapshot1D`, `FieldSnapshot2D`, and
+`AbstractVector{<:FieldSnapshot2D}` (panel grid via `layout=(rows, cols)`).
+
+Common keyword arguments:
+
+| Keyword | Applies to | Meaning |
+|---------|-----------|---------|
+| `axis_width_cm`, `axis_height_cm` | L2, L3 | physical axis size (default `8.0` × `6.0`) |
+| `clims` | L1, L2, L3 | color range `(vmin, vmax)` for heatmaps |
+| `colormap` | L1, L2, L3 | override `snap.colormap` |
+| `ylims` | L2, L3 single-axis | y-axis limits (not supported for vertical-stack / panel paths) |
+| `layout` | L3 vector | `(rows, cols)` panel arrangement |
+
+Labels and titles follow the recipe conventions: an explicit keyword wins, then
+`snap.xlabel` / `snap.ylabel` / `snap.title`, then an auto-generated default.
