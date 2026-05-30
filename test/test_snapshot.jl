@@ -56,5 +56,10 @@ end
 end
 
 @testset "savefig_publication fallback" begin
+    # Fallbacks for the 3-layer API when PythonPlot is not loaded.
+    # This runs before test_publication.jl loads PythonPlot, so the extension
+    # methods are absent and only the src fallbacks dispatch.
     @test_throws ArgumentError savefig_publication(nothing, "x")
+    @test_throws ArgumentError PhaseFields.plot_on_axis!(nothing, nothing)
+    @test_throws ArgumentError PhaseFields.figure_publication(nothing)
 end
