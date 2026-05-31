@@ -21,44 +21,26 @@ Create animation from snapshots. Requires `using Plots`.
 """
 function animate_field end
 
-"""
-    savefig_publication(snap, filepath; kwargs...)
-
-Save publication-quality figure. Requires `using PythonPlot`.
-"""
+# PythonPlot extension API (3-layer). Implemented — with their authoritative,
+# per-method docstrings — in ext/PhaseFieldsPythonPlotExt.jl. The extension
+# module is added to Documenter's `modules` so `@docs` renders those docstrings.
 function savefig_publication end
+function plot_on_axis! end
+function figure_publication end
 
-# Fallback
+# Fallbacks (when PythonPlot is not loaded)
 function savefig_publication(args...; kwargs...)
     throw(ArgumentError(
         "savefig_publication requires PythonPlot.jl. Run `using PythonPlot` first."
     ))
 end
 
-"""
-    plot_on_axis!(ax, snap; kwargs...)
-
-Draw a snapshot onto a user-supplied matplotlib axis and return `ax`.
-Requires `using PythonPlot`. Not exported; call as `PhaseFields.plot_on_axis!`.
-"""
-function plot_on_axis! end
-
-# Fallback
 function plot_on_axis!(args...; kwargs...)
     throw(ArgumentError(
         "plot_on_axis! requires PythonPlot.jl. Run `using PythonPlot` first."
     ))
 end
 
-"""
-    figure_publication(snap; kwargs...)
-
-Create a publication figure and axis for a snapshot, returning `(fig, ax)`.
-Requires `using PythonPlot`. Not exported; call as `PhaseFields.figure_publication`.
-"""
-function figure_publication end
-
-# Fallback
 function figure_publication(args...; kwargs...)
     throw(ArgumentError(
         "figure_publication requires PythonPlot.jl. Run `using PythonPlot` first."

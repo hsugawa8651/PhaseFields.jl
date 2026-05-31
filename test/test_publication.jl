@@ -77,7 +77,7 @@ _title(ax) = string(ax.get_title())
     @testset "L3 custom axis size" begin
         mktempdir() do tmp
             p = joinpath(tmp, "custom.pdf")
-            savefig_publication(s1_single, p; axis_width_cm = 10.0, axis_height_cm = 5.0)
+            savefig_publication(s1_single, p; axis_width_mm = 100.0, axis_height_mm = 50.0)
             @test isfile(p)
         end
     end
