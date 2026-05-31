@@ -24,7 +24,7 @@ Plot one or more fields at a specific time step.
 **Single field:**
 
 ```julia
-grid = UniformGrid1D(0.0, 1.0, 101)
+grid = UniformGrid1D(N=101, L=1.0)
 snap = FieldSnapshot1D(grid, φ, t; field_name=:φ)
 plot(snap)
 ```
@@ -40,7 +40,7 @@ plot(snap)
 |-----------|---------|
 | xlabel | value of `snap.xlabel` (default `"x"`) |
 | ylabel | field name (e.g. `"φ"`) |
-| title | `"φ (t=0.5)"` (auto-generated from field name and time) |
+| title | `"φ (t=0.5)"` (generated from the field name and time) |
 | linewidth | 2 |
 | layout | `(n, 1)` for n fields |
 
@@ -68,7 +68,7 @@ plot(snap)
 Plot a 2D field at a specific time step as a heatmap.
 
 ```julia
-grid = UniformGrid2D(0.0, 1.0, 64, 0.0, 1.0, 64)
+grid = UniformGrid2D(Nx=64, Ny=64, Lx=1.0, Ly=1.0)
 snap = FieldSnapshot2D(grid, field, t, :φ;
     colormap=:viridis, clims=(0.0, 1.0))
 plot(snap)
@@ -98,29 +98,38 @@ plot(snap, title="Custom Title", seriescolor=:plasma, size=(800, 600))
 
 ## Publication-quality output (PythonPlot)
 
-`using PythonPlot` enables a three-layer [matplotlib](https://matplotlib.org/)-based
-API for publication figures. Install with `pkg> add PythonPlot` (matplotlib is
-provided automatically via Conda). These functions are not exported; call them as
-`PhaseFields.plot_on_axis!` / `PhaseFields.figure_publication`.
+For publication-quality static figures (PDF / PNG via matplotlib), load the
+PythonPlot extension. The API has **three layers** (L1 / L2 are unexported —
+call them as `PhaseFields.…`; L3 `savefig_publication` is exported). Install
+with `pkg> add PythonPlot` (matplotlib is provided automatically via Conda).
 
 | Layer | Function | Returns | Use |
 |-------|----------|---------|-----|
-| L1 | `PhaseFields.plot_on_axis!(ax, snap; ...)` | `ax` | draw onto your own matplotlib axis (compose subplots) |
-| L2 | `PhaseFields.figure_publication(snap; ...)` | `(fig, ax)` | get a sized figure + axis to tweak before saving |
-| L3 | `savefig_publication(snap, path; ...)` | `path` | one-shot save to PDF or PNG (by extension) |
+| L3 | `savefig_publication(snap, path; ...)` | `path` | save to PDF or PNG in one call (format from the file extension; delegates to L2) |
+| L2 | `PhaseFields.figure_publication(snap; ...)` | `(fig, ax)` | a sized figure + axis to tweak before saving |
+| L1 | `PhaseFields.plot_on_axis!(ax, snap; ...)` | `ax` | draw onto your own matplotlib axis (compose a subplot grid) |
 
 ```julia
 using PhaseFields, PythonPlot
+```
 
+On a headless machine or in CI (no display), select a non-interactive backend
+before plotting: `PythonPlot.matplotlib.use("Agg")`.
+
+In every layer the `snap` argument may be a `FieldSnapshot1D`,
+`SpaceTimeSnapshot1D`, or `FieldSnapshot2D`, plus an
+`AbstractVector{<:FieldSnapshot2D}` for an L3 panel grid.
+
+```julia
 grid = UniformGrid2D(Nx=64, Ny=64, Lx=1.0, Ly=1.0)
 snap = FieldSnapshot2D(grid, field, 0.5, :φ; colormap=:viridis)
 
-# L3 — one-shot save (format from the file extension)
+# L3 — save in one call (format from the file extension)
 savefig_publication(snap, "phi.pdf")
 savefig_publication(snap, "phi.png")
 
 # L2 — adjust before saving
-fig, ax = PhaseFields.figure_publication(snap; axis_width_cm=8.0, axis_height_cm=6.0)
+fig, ax = PhaseFields.figure_publication(snap; axis_width_mm=80.0, axis_height_mm=60.0)
 ax.set_title("My field")
 fig.savefig("phi_custom.pdf")
 PythonPlot.close(fig)
@@ -129,21 +138,23 @@ PythonPlot.close(fig)
 fig = PythonPlot.figure()
 ax = fig.add_subplot(1, 2, 1)
 PhaseFields.plot_on_axis!(ax, snap)
+fig.savefig("composite.pdf")
+PythonPlot.close(fig)
 ```
 
-Supported snapshots: `FieldSnapshot1D` (single field, or multiple fields stacked
-vertically by L3), `SpaceTimeSnapshot1D`, `FieldSnapshot2D`, and
-`AbstractVector{<:FieldSnapshot2D}` (panel grid via `layout=(rows, cols)`).
+With L1 and L2 you create the figure (via `PythonPlot.figure` / `add_subplot`),
+so you own it and must call `PythonPlot.close(fig)`; `savefig_publication` (L3)
+closes its figure for you.
 
-Common keyword arguments:
+### Keyword reference
 
-| Keyword | Applies to | Meaning |
-|---------|-----------|---------|
-| `axis_width_cm`, `axis_height_cm` | L2, L3 | physical axis size (default `8.0` × `6.0`) |
-| `clims` | L1, L2, L3 | color range `(vmin, vmax)` for heatmaps |
-| `colormap` | L1, L2, L3 | override `snap.colormap` |
-| `ylims` | L2, L3 single-axis | y-axis limits (not supported for vertical-stack / panel paths) |
-| `layout` | L3 vector | `(rows, cols)` panel arrangement |
+Keywords are documented on the functions below. The plot keywords for each
+snapshot type (and the label and title precedence) live on `plot_on_axis!`;
+`figure_publication` adds the figure size keywords; `savefig_publication`
+forwards everything:
 
-Labels and titles follow the recipe conventions: an explicit keyword wins, then
-`snap.xlabel` / `snap.ylabel` / `snap.title`, then an auto-generated default.
+```@docs
+PhaseFields.savefig_publication
+PhaseFields.figure_publication
+PhaseFields.plot_on_axis!
+```

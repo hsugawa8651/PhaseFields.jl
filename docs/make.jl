@@ -1,5 +1,11 @@
 using Documenter
 using PhaseFields
+using PythonPlot                   # loads PhaseFieldsPythonPlotExt so its docstrings render
+PythonPlot.matplotlib.use("Agg")  # headless backend for CI
+
+# The PythonPlot extension carries the docstrings for plot_on_axis! /
+# figure_publication / savefig_publication; include it so @docs can render them.
+const PFPythonPlotExt = Base.get_extension(PhaseFields, :PhaseFieldsPythonPlotExt)
 
 makedocs(
     sitename = "PhaseFields.jl",
@@ -8,7 +14,7 @@ makedocs(
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true",
     ),
-    modules = [PhaseFields],
+    modules = [PhaseFields, PFPythonPlotExt],
     checkdocs = :exports,  # Only check exported symbols
     warnonly = [:missing_docs, :cross_references],  # Don't fail on missing docs or unit brackets
     pages = [
