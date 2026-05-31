@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "PhaseFields.jl: Phase field simulations with CALPHAD coupling in Julia"
+type: software
+authors:
+  - family-names: Sugawara
+    given-names: Hiroharu
+    email: hsugawa@gmail.com
+    orcid: "https://orcid.org/0000-0002-0071-2396"
+license: MIT
+repository-code: "https://github.com/hsugawa8651/PhaseFields.jl"
+version: 0.2.0
+date-released: 2026-05-31
+doi: 10.5281/zenodo.18649171
