@@ -6,7 +6,7 @@
 
 A Julia package for phase field simulations with CALPHAD thermodynamics coupling.
 
-## Features (v0.1)
+## Features (v0.2)
 
 * Multiple phase field models (Allen-Cahn, Cahn-Hilliard, KKS, WBM, Thermal)
 * 1D and 2D simulations (FDM built-in, FEM via Gridap.jl extension)
@@ -14,6 +14,7 @@ A Julia package for phase field simulations with CALPHAD thermodynamics coupling
 * DifferentialEquations.jl integration (adaptive time stepping, callbacks)
 * OpenCALPHAD.jl CALPHAD coupling via Package Extension
 * Automatic differentiation via DifferentiationInterface.jl
+* Publication-quality plotting via a PythonPlot extension (3-layer API) and Plots recipes
 
 ## Models
 
