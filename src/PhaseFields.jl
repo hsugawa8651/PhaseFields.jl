@@ -130,6 +130,36 @@ Get second derivative of Gibbs energy d²G/dx² from CALPHAD.
 function calphad_diffusion_potential end
 
 """
+    calphad_free_energy(db, phase_name, T)
+
+Wrap the Gibbs energy of `phase_name` from a TDB database so that it can be
+passed to the KKS free energy slot.
+
+**Requires OpenCALPHAD.jl**: Load with `using OpenCALPHAD` to enable this function.
+
+# Arguments
+- `db`: OpenCALPHAD Database object
+- `phase_name`: Name of the phase (e.g., "FCC_A1")
+- `T`: Temperature [K]
+
+# Returns
+- A free energy object answering to `free_energy`, `chemical_potential` and `d2f_dc2`.
+
+!!! note
+    The returned object fills the KKS free energy slot. It does not implement
+    `chemical_potential_bulk`, so a `CahnHilliardProblem` built with it fails
+    at solve time.
+
+# Examples
+```julia
+using PhaseFields, OpenCALPHAD
+db  = read_tdb("agcu.TDB")
+f_s = calphad_free_energy(db, "FCC_A1", 1000.0)
+```
+"""
+function calphad_free_energy end
+
+"""
     create_calphad_allen_cahn(db, T, x, solid_phase, liquid_phase; kwargs...)
 
 Create an Allen-Cahn model coupled with CALPHAD thermodynamics.
@@ -283,6 +313,7 @@ export GridapDomain
 # Exports - CALPHAD Coupling (implemented by OpenCALPHADExt extension)
 export AbstractCALPHADCoupledModel
 export calphad_driving_force, calphad_chemical_potential, calphad_diffusion_potential
+export calphad_free_energy
 export create_calphad_allen_cahn, create_calphad_kks_model, create_calphad_wbm_model
 
 end # module PhaseFields

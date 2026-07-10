@@ -225,6 +225,9 @@ get_composition(model::CALPHADAllenCahnModel) = model.x
 Wrapper for CALPHAD thermodynamic data compatible with KKS model.
 Provides the same interface as ParabolicFreeEnergy.
 
+This type lives inside the extension and is not reachable from the user
+namespace. Build one with `calphad_free_energy`, which PhaseFields exports.
+
 # Fields
 - `db::OpenCALPHAD.Database`: Thermodynamic database
 - `phase::OpenCALPHAD.Phase`: Phase object
@@ -233,8 +236,8 @@ Provides the same interface as ParabolicFreeEnergy.
 # Example
 ```julia
 db = read_tdb("agcu.TDB")
-f_s = CALPHADFreeEnergy(db, "FCC_A1", 1000.0)
-f_l = CALPHADFreeEnergy(db, "LIQUID", 1000.0)
+f_s = calphad_free_energy(db, "FCC_A1", 1000.0)
+f_l = calphad_free_energy(db, "LIQUID", 1000.0)
 c_s, c_l, μ, converged = kks_partition(0.5, 0.5, f_s, f_l)
 ```
 """
@@ -256,6 +259,17 @@ function CALPHADFreeEnergy(
 )
     phase = OpenCALPHAD.get_phase(db, phase_name)
     return CALPHADFreeEnergy(db, phase, Float64(T))
+end
+
+# Public front door for CALPHADFreeEnergy. The struct stays inside this extension
+# because it holds OpenCALPHAD types; users only ever hold the returned object.
+# Docstring lives on the parent stub: docs/make.jl does not load OpenCALPHAD.
+function PhaseFields.calphad_free_energy(
+    db::OpenCALPHAD.Database,
+    phase_name::AbstractString,
+    T::Real
+)
+    return CALPHADFreeEnergy(db, phase_name, T)
 end
 
 """
