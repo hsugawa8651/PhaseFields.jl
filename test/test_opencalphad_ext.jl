@@ -154,13 +154,48 @@ using OpenCALPHAD
             @test model2.M_l == 1.0
         end
 
+        @testset "calphad_free_energy (public front door)" begin
+            T = 1000.0
+            c = 0.3
+
+            # Reachable from the user namespace, without Base.get_extension
+            @test isdefined(PhaseFields, :calphad_free_energy)
+            @test :calphad_free_energy in names(PhaseFields)
+
+            f_s = calphad_free_energy(db, "FCC_A1", T)
+            f_l = calphad_free_energy(db, "LIQUID", T)
+            @test f_s.T == T
+            @test f_l.T == T
+
+            # Identical to the object the KKS factory already returns
+            _, f_s_kks, _ = create_calphad_kks_model(db, T, "FCC_A1", "LIQUID")
+            @test typeof(f_s) === typeof(f_s_kks)
+            @test PhaseFields.free_energy(f_s, c) ≈ PhaseFields.free_energy(f_s_kks, c)
+
+            # It fills the KKS free energy slot
+            @test isfinite(PhaseFields.free_energy(f_s, c))
+            @test isfinite(PhaseFields.chemical_potential(f_s, c))
+            @test isfinite(PhaseFields.d2f_dc2(f_s, c))
+
+            # It does NOT fill the Cahn-Hilliard slot: no chemical_potential_bulk
+            # method. This assertion documents the limitation; see
+            # docs/src/integration/calphad.md.
+            @test !applicable(PhaseFields.chemical_potential_bulk, f_s, c)
+        end
+
+        @testset "CALPHAD front doors are exported and method backed" begin
+            for s in (:calphad_free_energy, :calphad_driving_force,
+                      :calphad_chemical_potential, :calphad_diffusion_potential,
+                      :create_calphad_allen_cahn, :create_calphad_kks_model,
+                      :create_calphad_wbm_model)
+                @test s in names(PhaseFields)
+                @test !isempty(methods(getproperty(PhaseFields, s)))
+            end
+        end
+
         @testset "KKS with CALPHAD - CALPHADFreeEnergy" begin
             T = 1000.0
             _, f_s, f_l = create_calphad_kks_model(db, T, "FCC_A1", "LIQUID")
-
-            # Access extension module for method dispatch
-            ext = Base.get_extension(PhaseFields, :OpenCALPHADExt)
-            @test ext !== nothing
 
             # Verify the struct was created correctly
             @test f_s.T == T
@@ -174,7 +209,7 @@ using OpenCALPHAD
             @test isfinite(PhaseFields.free_energy(f_s, c))
             @test isfinite(PhaseFields.free_energy(f_l, c))
             @test isfinite(PhaseFields.d2f_dc2(f_s, c))
-            @test isfinite(ext.chemical_potential(f_s, c))
+            @test isfinite(PhaseFields.chemical_potential(f_s, c))
         end
 
         # The KKS equilibrium partition (iterative Newton solve to convergence,
