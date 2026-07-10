@@ -34,6 +34,11 @@ import DifferentiationInterface as DI
     # Skip if OpenCALPHAD is not available (weakdep, not registered yet)
     if Base.find_package("OpenCALPHAD") !== nothing
         include("test_opencalphad_ext.jl")
+
+        # Public API surface: exported names have methods, orphans and clashes are
+        # frozen. Runs here so OpenCALPHAD (and the extensions loaded above) is
+        # present; the clash check needs it.
+        include("test_public_api.jl")
     else
         @warn "Skipping OpenCALPHAD extension tests (OpenCALPHAD not available)"
     end
