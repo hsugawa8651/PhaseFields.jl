@@ -39,7 +39,7 @@ model = AllenCahnModel(τ=1.0, W=1.0, m=0.1)
 # Compute right-hand side
 φ = 0.5
 ∇²φ = -0.1  # Laplacian
-ΔG = -100.0  # Driving force (negative = solidification)
+ΔG = 100.0  # Driving force (positive drives φ towards 1 = solid)
 
 dφdt = allen_cahn_rhs(model, φ, ∇²φ, ΔG)
 ```
