@@ -10,7 +10,7 @@ Julia package extension that loads automatically when OpenCALPHAD is imported.
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/hsugawa8651/OpenCALPHAD.jl")
+Pkg.add("OpenCALPHAD")
 ```
 
 ## Basic Usage
