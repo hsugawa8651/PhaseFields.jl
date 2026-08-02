@@ -91,7 +91,8 @@ model = AllenCahnModel(τ=1.0, W=1.0, m=1e-4)  # m scales ΔG to dimensionless
 # Grid
 Nx = 100
 dx = 1.0
-φ = [0.5 * (1 + tanh((i - 30) / 3)) for i in 1:Nx]
+# liquid on the left, a solid seed on the right; the front then sweeps left
+φ = [0.5 * (1 + tanh((i - 70) / 3)) for i in 1:Nx]
 
 # Laplacian helper
 function compute_laplacian!(∇²φ, φ, dx)
@@ -115,14 +116,23 @@ function show_profile(φ, label)
 end
 
 # Simulation parameters
-T_sim = 1000.0  # K
+# 900 K is undercooled. At 1000 K the driving force is only about -200 J/mol, which
+# after the m = 1e-4 scaling moves the interface by a couple of grid points at most.
+T_sim = 900.0   # K
 x_sim = 0.3     # Cu mole fraction
 dt = 0.1
-Nt = 300
+Nt = 1500
 
 # Get driving force from CALPHAD
 ΔG = driving_force(db, T_sim, x_sim, "FCC_A1", "LIQUID")
 println("   Using ΔG = $(round(ΔG, digits=1)) J/mol from CALPHAD")
+println("   ", ΔG < 0 ? "ΔG < 0  =>  FCC_A1 (solid) is the stable phase" :
+                        "ΔG > 0  =>  LIQUID is the stable phase")
+
+# The two packages use opposite sign conventions: driving_force returns
+# G_solid - G_liquid (negative => solid stable), while allen_cahn_rhs needs a
+# positive value to push φ towards 1. Convert before handing it over.
+ΔG_pf = calphad_to_pf_driving_force(ΔG)
 
 ∇²φ = similar(φ)
 
@@ -132,7 +142,7 @@ show_profile(φ, "   t=0   ")
 for step in 1:Nt
     compute_laplacian!(∇²φ, φ, dx)
     for i in 1:Nx
-        dφdt = allen_cahn_rhs(model, φ[i], ∇²φ[i], ΔG)
+        dφdt = allen_cahn_rhs(model, φ[i], ∇²φ[i], ΔG_pf)
         φ[i] = clamp(φ[i] + dt * dφdt, 0.0, 1.0)
     end
     if step % 100 == 0
@@ -161,7 +171,10 @@ println("""
 ✅ Integration workflow:
    1. Load TDB database with OpenCALPHAD.jl
    2. Calculate ΔG(T, x) at each grid point
-   3. Use ΔG in PhaseFields.jl evolution equations
+   3. Convert the sign with calphad_to_pf_driving_force
+      (driving_force gives G_solid - G_liquid, negative when the solid is stable;
+       allen_cahn_rhs needs a positive value to grow the solid)
+   4. Use the converted value in PhaseFields.jl evolution equations
 """)
 
 # =============================================================================

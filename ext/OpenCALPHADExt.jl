@@ -131,7 +131,10 @@ function PhaseFields.create_calphad_allen_cahn(
     W::Real = 1.0,
     m::Real = 1e-4
 )
-    # Get driving force from CALPHAD
+    # Get driving force from CALPHAD. Kept in the CALPHAD sign convention
+    # (G_solid - G_liquid, negative => solid stable) so that get_driving_force
+    # reports what the database says. The conversion to the phase field
+    # convention happens where it is consumed, in allen_cahn_rhs below.
     ΔG = OpenCALPHAD.driving_force(db, T, x, solid_phase, liquid_phase)
 
     # Create base model
@@ -151,13 +154,21 @@ end
     allen_cahn_rhs(model::CALPHADAllenCahnModel, φ, ∇²φ)
 
 Compute Allen-Cahn RHS using cached CALPHAD driving force.
+
+The cached `ΔG` is in the CALPHAD convention (`G_solid - G_liquid`, negative when
+the solid is stable) and is converted here with
+[`calphad_to_pf_driving_force`](@ref), because `allen_cahn_rhs` needs a positive
+value to push `φ` towards 1.
 """
 function PhaseFields.allen_cahn_rhs(
     model::CALPHADAllenCahnModel,
     φ::Real,
     ∇²φ::Real
 )
-    return PhaseFields.allen_cahn_rhs(model.base_model, φ, ∇²φ, model.ΔG)
+    return PhaseFields.allen_cahn_rhs(
+        model.base_model, φ, ∇²φ,
+        PhaseFields.calphad_to_pf_driving_force(model.ΔG),
+    )
 end
 
 # =============================================================================
@@ -198,6 +209,11 @@ end
     get_driving_force(model::CALPHADAllenCahnModel)
 
 Get the cached driving force from the model.
+
+Returned in the CALPHAD convention: `G_solid - G_liquid`, so a negative value means
+the solid is the stable phase. Pass it through
+[`calphad_to_pf_driving_force`](@ref) before handing it to `allen_cahn_rhs`
+yourself; the model's own `allen_cahn_rhs` method already does that.
 """
 get_driving_force(model::CALPHADAllenCahnModel) = model.ΔG
 

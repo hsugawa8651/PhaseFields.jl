@@ -122,6 +122,35 @@ model, f_s, f_l = create_calphad_wbm_model(db, T, "FCC_A1", "LIQUID";
 ΔG = calphad_driving_force(db, T, x, "FCC_A1", "LIQUID")
 ```
 
+#### Two sign conventions
+
+The thermodynamics and the phase field model number the driving force in opposite
+directions, and the conversion between them is explicit.
+
+| | Convention |
+|---|---|
+| `calphad_driving_force` | `ΔG = G_solid - G_liquid`, so **negative when the solid is stable** |
+| [`allen_cahn_rhs`](@ref) | driving term is `m * ΔG * h'(φ)` with `h'(φ) = 6φ(1-φ) ≥ 0`, so it needs a **positive** value to push `φ` towards 1 (solid) |
+
+Passing one straight into the other melts the phase CALPHAD calls stable.
+
+`create_calphad_allen_cahn` converts for you, so the coupled model is safe:
+
+```julia
+model = create_calphad_allen_cahn(db, 900.0, 0.3, "FCC_A1", "LIQUID")
+dφdt = allen_cahn_rhs(model, φ, ∇²φ)     # conversion happens inside
+```
+
+When you drive `allen_cahn_rhs` by hand, convert explicitly:
+
+```julia
+ΔG = calphad_driving_force(db, 900.0, 0.3, "FCC_A1", "LIQUID")   # < 0, solid stable
+dφdt = allen_cahn_rhs(model, φ, ∇²φ, calphad_to_pf_driving_force(ΔG))
+```
+
+`get_driving_force(model)` reports the CALPHAD-convention value, i.e. what the
+database says, not the converted one.
+
 ### Chemical Potential
 
 ```julia
@@ -141,6 +170,7 @@ d2G = calphad_diffusion_potential(db, "FCC_A1", T, x)
 ```@docs
 AbstractCALPHADCoupledModel
 calphad_driving_force
+calphad_to_pf_driving_force
 calphad_chemical_potential
 calphad_diffusion_potential
 calphad_free_energy

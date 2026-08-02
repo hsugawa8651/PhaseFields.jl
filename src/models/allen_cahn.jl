@@ -11,7 +11,7 @@ The Allen-Cahn equation:
     τ ∂φ/∂t = W²∇²φ - g'(φ) + m·ΔG·h'(φ)
 
 where:
-- φ: Order parameter (0 = solid, 1 = liquid)
+- φ: Order parameter (1 = solid, 0 = liquid, diffuse interface in between)
 - τ: Relaxation time [s]
 - W: Interface width parameter [m]
 - g(φ): Double-well potential
@@ -49,13 +49,20 @@ Compute the right-hand side of the Allen-Cahn equation.
 
 ∂φ/∂t = (W²∇²φ - g'(φ) + m·ΔG·h'(φ)) / τ
 
+`h'(φ) = 6φ(1-φ)` is never negative, so the driving term pushes towards solid
+(φ → 1) when `ΔG > 0`.
+
 This function is AD-compatible for sensitivity analysis.
 
 # Arguments
 - `model`: AllenCahnModel parameters
-- `φ`: Order parameter at current point
+- `φ`: Order parameter at current point (1 = solid, 0 = liquid)
 - `∇²φ`: Laplacian of order parameter
-- `ΔG`: Driving force [J/mol]
+- `ΔG`: Driving force [J/mol], in the sign convention of this function:
+  positive drives φ towards 1 (solid). This is the **opposite** of
+  `calphad_driving_force`, which returns `G_solid - G_liquid` and is therefore
+  negative when the solid is stable. Convert with
+  [`calphad_to_pf_driving_force`](@ref).
 
 # Returns
 - Time derivative ∂φ/∂t [1/s]
@@ -100,9 +107,10 @@ At steady state, R(φ) = 0.
 
 # Arguments
 - `model`: AllenCahnModel parameters
-- `φ`: Order parameter
+- `φ`: Order parameter (1 = solid, 0 = liquid)
 - `∇²φ`: Laplacian of order parameter
-- `ΔG`: Driving force [J/mol]
+- `ΔG`: Driving force [J/mol], positive drives φ towards 1 (solid) — the opposite
+  of the `calphad_driving_force` convention. See [`allen_cahn_rhs`](@ref).
 
 # Returns
 - Residual value (should be 0 at steady state)

@@ -84,9 +84,52 @@ using OpenCALPHAD
 
             dφdt = allen_cahn_rhs(model, φ, ∇²φ)
             @test isfinite(dφdt)
+        end
 
-            # At interface (φ=0.5), driving force should push toward solid (ΔG < 0)
-            # So dφdt should have contribution toward φ=1
+        @testset "CALPHAD driving force pushes towards the stable phase" begin
+            # 900 K is undercooled, so the driving force is large enough to dominate.
+            model = create_calphad_allen_cahn(db, 900.0, 0.3, "FCC_A1", "LIQUID")
+
+            # CALPHAD convention: ΔG = G_solid - G_liquid, negative => solid is stable.
+            @test model.ΔG < 0
+
+            # At a flat interface g'(0.5) = 0 and ∇²φ = 0, so the driving term is the
+            # only one left. It has to push towards solid, i.e. towards φ = 1.
+            # Feeding the CALPHAD value in without converting its sign gives the
+            # opposite, which is what this asserts against.
+            dφdt = allen_cahn_rhs(model, 0.5, 0.0)
+            @test isfinite(dφdt)
+            @test dφdt > 0
+        end
+
+        @testset "CALPHAD-driven front grows the solid" begin
+            model = create_calphad_allen_cahn(db, 900.0, 0.3, "FCC_A1", "LIQUID")
+            @test model.ΔG < 0
+
+            Nx, dx, dt, Nt = 100, 1.0, 0.1, 1000
+            # liquid on the left, a solid seed on the right
+            φ = [0.5 * (1 + tanh((i - 70) / 3)) for i in 1:Nx]
+            ∇²φ = similar(φ)
+            front(f) = something(findfirst(i -> f[i] >= 0.5, eachindex(f)), 0)
+            start = front(φ)
+            solid_before = sum(φ)
+
+            for _ in 1:Nt
+                for i in 2:Nx-1
+                    ∇²φ[i] = (φ[i+1] - 2φ[i] + φ[i-1]) / dx^2
+                end
+                ∇²φ[1] = (φ[2] - φ[1]) / dx^2
+                ∇²φ[Nx] = (φ[Nx-1] - φ[Nx]) / dx^2
+                for i in 1:Nx
+                    φ[i] = clamp(φ[i] + dt * allen_cahn_rhs(model, φ[i], ∇²φ[i]), 0.0, 1.0)
+                end
+            end
+
+            # Primary assertion: the solid volume grew. Stated this way rather than as a
+            # front position because it does not depend on which side the seed is on.
+            @test sum(φ) > solid_before
+            @test front(φ) > 0        # the solid did not disappear entirely
+            @test front(φ) < start    # and the front advanced into the liquid
         end
 
         @testset "update_conditions" begin

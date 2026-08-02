@@ -87,6 +87,32 @@ Concrete implementations are provided by the OpenCALPHAD extension.
 abstract type AbstractCALPHADCoupledModel end
 
 """
+    calphad_to_pf_driving_force(ΔG_calphad)
+
+Convert a CALPHAD driving force to the sign convention the phase field models use.
+
+The two conventions are opposite. `calphad_driving_force` returns
+`G_solid - G_liquid`, which is **negative** when the solid is the stable phase.
+[`allen_cahn_rhs`](@ref) computes its driving term as `m * ΔG * h'(φ)`, and
+`h'(φ) = 6φ(1-φ)` is never negative, so that term needs a **positive** value to
+push `φ` towards 1 (solid). Passing one straight into the other melts the phase
+CALPHAD calls stable.
+
+`create_calphad_allen_cahn` applies this conversion for you. Call it yourself when
+you drive `allen_cahn_rhs` by hand.
+
+Unlike the other `calphad_*` functions this one carries no OpenCALPHAD types, so it
+is defined here rather than in the extension and works without `using OpenCALPHAD`.
+
+# Example
+```julia
+ΔG = calphad_driving_force(db, 900.0, 0.3, "FCC_A1", "LIQUID")   # < 0, solid stable
+dφdt = allen_cahn_rhs(model, φ, ∇²φ, calphad_to_pf_driving_force(ΔG))
+```
+"""
+calphad_to_pf_driving_force(ΔG_calphad::Real) = -ΔG_calphad
+
+"""
     calphad_driving_force(db, T, x, solid_phase, liquid_phase)
 
 Calculate the thermodynamic driving force for solidification using CALPHAD data.
@@ -313,6 +339,7 @@ export GridapDomain
 # Exports - CALPHAD Coupling (implemented by OpenCALPHADExt extension)
 export AbstractCALPHADCoupledModel
 export calphad_driving_force, calphad_chemical_potential, calphad_diffusion_potential
+export calphad_to_pf_driving_force  # defined in core, not in the extension
 export calphad_free_energy
 export create_calphad_allen_cahn, create_calphad_kks_model, create_calphad_wbm_model
 

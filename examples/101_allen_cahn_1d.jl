@@ -29,7 +29,7 @@ Nx = 80         # Grid points
 dx = 1.0        # Grid spacing
 dt = 0.05       # Time step
 Nt = 600        # Number of time steps
-ΔG = -0.3       # Driving force (negative = solid grows)
+ΔG = 0.3        # Driving force (positive drives φ towards 1 = solid grows)
 
 println("Parameters:")
 println("  Grid: Nx=$Nx, dx=$dx")
@@ -39,9 +39,10 @@ println("  Driving force: ΔG=$ΔG")
 println()
 
 # -----------------------------------------------------------------------------
-# Initial condition: tanh profile (interface at x=20)
+# Initial condition: tanh profile (interface at x=60)
+# Liquid on the left, a solid seed on the right; the front then sweeps left.
 # -----------------------------------------------------------------------------
-φ = [0.5 * (1 + tanh((i - 20) / 3)) for i in 1:Nx]
+φ = [0.5 * (1 + tanh((i - 60) / 3)) for i in 1:Nx]
 
 # -----------------------------------------------------------------------------
 # Laplacian (finite difference, Neumann BC)
