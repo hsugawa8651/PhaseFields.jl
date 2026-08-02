@@ -30,7 +30,7 @@ A Julia package for phase field simulations with CALPHAD thermodynamics coupling
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/hsugawa8651/PhaseFields.jl")
+Pkg.add("PhaseFields")
 ```
 
 ## Quick Example

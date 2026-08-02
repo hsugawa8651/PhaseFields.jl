@@ -14,12 +14,12 @@ Phase Field method simulation package for materials science.
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/hsugawa8651/PhaseFields.jl")
+Pkg.add("PhaseFields")
 ```
 
 For CALPHAD coupling:
 ```julia
-Pkg.add(url="https://github.com/hsugawa8651/OpenCALPHAD.jl")
+Pkg.add("OpenCALPHAD")
 ```
 
 ## Quick Start
