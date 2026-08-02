@@ -57,9 +57,13 @@ T = 1000.0  # Temperature [K]
 x = 0.3     # Composition (Cu mole fraction)
 model = create_calphad_allen_cahn(db, T, x, "FCC_A1", "LIQUID")
 
-# Driving force from CALPHAD
+# Driving force from CALPHAD (G_solid - G_liquid, negative when the solid is stable)
 ΔG = calphad_driving_force(db, T, x, "FCC_A1", "LIQUID")
 ```
+
+The model built by `create_calphad_allen_cahn` converts that sign for you. If you
+call `allen_cahn_rhs` with a driving force of your own, see
+[Two sign conventions](@ref).
 
 ## Package Structure
 
