@@ -9,6 +9,6 @@ authors:
     orcid: "https://orcid.org/0000-0002-0071-2396"
 license: MIT
 repository-code: "https://github.com/hsugawa8651/PhaseFields.jl"
-version: 0.2.0
-date-released: 2026-05-31
+version: 0.3.0
+date-released: 2026-08-02
 doi: 10.5281/zenodo.18649170
