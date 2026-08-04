@@ -24,6 +24,7 @@ using OpenCALPHAD
 
 # Import functions that we will extend with new methods
 import PhaseFields: free_energy, chemical_potential, d2f_dc2
+import PhaseFields: free_energy_density, chemical_potential_bulk
 import PhaseFields: allen_cahn_rhs, create_calphad_kks_model, create_calphad_wbm_model
 
 # Debug: confirm extension loading
@@ -315,6 +316,39 @@ Get second derivative of Gibbs energy (d²G/dc²) from CALPHAD.
 """
 function d2f_dc2(f::CALPHADFreeEnergy, c::Real)
     return OpenCALPHAD.diffusion_potential(f.phase, f.T, c, f.db)
+end
+
+# --- the Cahn-Hilliard names for the same two quantities ---------------------
+# KKS and WBM ask for free_energy / chemical_potential / d2f_dc2; Cahn-Hilliard
+# asks for free_energy_density / chemical_potential_bulk. They are the same
+# quantities, so these forward rather than recompute.
+#
+# NOTE. No sign flip here, unlike the Allen-Cahn coupling. Cahn-Hilliard
+# minimises f(c) directly, and chemical_potential already returns dG/dc: for a
+# binary, mu2 - mu1 = dG/dx exactly (checked against ForwardDiff in
+# test/test_opencalphad_ext.jl).
+
+"""
+    free_energy_density(f::CALPHADFreeEnergy, c)
+
+Gibbs energy at composition `c`, under the name the Cahn-Hilliard model uses.
+"""
+function free_energy_density(f::CALPHADFreeEnergy, c::Real)
+    return free_energy(f, c)
+end
+
+"""
+    chemical_potential_bulk(f::CALPHADFreeEnergy, c)
+
+Bulk chemical potential `df/dc` at composition `c`, under the name the
+Cahn-Hilliard model uses.
+
+Every evaluation reads the database, which is expensive: one call costs tens of
+milliseconds, so a solve on a large grid should interpolate a table built once
+rather than call this per cell. See `examples/391_calphad_spinodal_2d.jl`.
+"""
+function chemical_potential_bulk(f::CALPHADFreeEnergy, c::Real)
+    return chemical_potential(f, c)
 end
 
 """
