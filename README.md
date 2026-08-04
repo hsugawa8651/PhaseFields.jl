@@ -6,13 +6,13 @@
 
 A Julia package for phase field simulations with CALPHAD thermodynamics coupling.
 
-## Features (v0.2)
+## Features
 
 * Multiple phase field models (Allen-Cahn, Cahn-Hilliard, KKS, WBM, Thermal)
 * 1D and 2D simulations (FDM built-in, FEM via Gridap.jl extension)
 * Unified problem/solve API with automatic FDM/FEM backend selection
 * DifferentialEquations.jl integration (adaptive time stepping, callbacks)
-* OpenCALPHAD.jl CALPHAD coupling via Package Extension
+* OpenCALPHAD.jl CALPHAD coupling via Package Extension, for Allen-Cahn and Cahn-Hilliard
 * Automatic differentiation via DifferentiationInterface.jl
 * Publication-quality plotting via a PythonPlot extension (3-layer API) and Plots recipes
 
@@ -21,9 +21,9 @@ A Julia package for phase field simulations with CALPHAD thermodynamics coupling
 | Model | Type | Use Case | Dimension |
 |-------|------|----------|-----------|
 | Allen-Cahn | Non-conserved | Phase transitions, interface migration | 1D, 2D |
-| Cahn-Hilliard | Conserved | Spinodal decomposition, coarsening | 1D |
-| KKS | Local equilibrium | Multi-component solidification | 1D |
-| WBM | Dilute alloy | Binary alloy solidification | 1D |
+| Cahn-Hilliard | Conserved | Spinodal decomposition, coarsening | 1D, 2D |
+| KKS | Local equilibrium | Multi-component solidification | 1D, 2D |
+| WBM | Dilute alloy | Binary alloy solidification | 1D, 2D |
 | Thermal | Heat-coupled | Stefan problem, latent heat release | 1D, 2D |
 
 ## Installation
