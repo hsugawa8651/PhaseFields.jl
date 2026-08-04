@@ -1,5 +1,6 @@
 using Test
 using PhaseFields
+using ForwardDiff
 
 # Load OpenCALPHAD to trigger extension loading
 using OpenCALPHAD
@@ -220,10 +221,32 @@ using OpenCALPHAD
             @test isfinite(PhaseFields.chemical_potential(f_s, c))
             @test isfinite(PhaseFields.d2f_dc2(f_s, c))
 
-            # It does NOT fill the Cahn-Hilliard slot: no chemical_potential_bulk
-            # method. This assertion documents the limitation; see
-            # docs/src/integration/calphad.md.
-            @test !applicable(PhaseFields.chemical_potential_bulk, f_s, c)
+            # It fills the Cahn-Hilliard slot too
+            @test applicable(PhaseFields.chemical_potential_bulk, f_s, c)
+            @test applicable(PhaseFields.free_energy_density, f_s, c)
+
+            # chemical_potential_bulk is df/dc, so it must agree with the
+            # derivative of the free energy the same object reports
+            dfdc = ForwardDiff.derivative(x -> PhaseFields.free_energy(f_s, x), c)
+            @test PhaseFields.chemical_potential_bulk(f_s, c) ≈ dfdc rtol=1e-8
+
+            # free_energy_density is the same quantity under the Cahn-Hilliard name
+            @test PhaseFields.free_energy_density(f_s, c) ==
+                  PhaseFields.free_energy(f_s, c)
+        end
+
+        @testset "Cahn-Hilliard accepts a CALPHAD free energy" begin
+            T = 1000.0
+            f = calphad_free_energy(db, "FCC_A1", T)
+
+            # The convenience call is not closed to the model potential either
+            model = CahnHilliardModel(M=1.0, κ=1.0)
+            @test applicable(cahn_hilliard_chemical_potential, model, f, 0.3, 0.0)
+            μ = cahn_hilliard_chemical_potential(model, f, 0.3, 0.0)
+            @test μ ≈ PhaseFields.chemical_potential_bulk(f, 0.3) rtol=1e-12
+
+            # Curvature enters with the gradient coefficient, as for a double well
+            @test cahn_hilliard_chemical_potential(model, f, 0.3, 1.0) ≈ μ - 1.0 rtol=1e-12
         end
 
         @testset "CALPHAD front doors are exported and method backed" begin
