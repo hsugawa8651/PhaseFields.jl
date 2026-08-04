@@ -127,4 +127,47 @@ using OrdinaryDiffEq
         @test length(sol.t) >= 1
         @test !any(isnan, sol.u[end])
     end
+
+    # -----------------------------------------------------------------
+    # The same solve, driven by a thermodynamic database instead of the
+    # model potential above. Kept deliberately small: one call into the
+    # database costs about 70 ms, so an N=32 run with two ROCK2 steps takes
+    # 49 s. N=8 with a single explicit step is about 2 s and still exercises
+    # the whole path, problem -> solver -> right-hand side -> database.
+    #
+    # PeriodicBC, not NeumannBC: the mean composition is conserved to
+    # round-off here, whereas the same run under NeumannBC drifts by 4e-7
+    # relative. The double well conserves under either boundary, so the drift
+    # belongs to the combination rather than to the discretisation.
+    # -----------------------------------------------------------------
+    if Base.find_package("OpenCALPHAD") !== nothing
+        @eval using OpenCALPHAD
+
+        @testset "CALPHAD free energy drives the same solve" begin
+            tdb = joinpath(pkgdir(OpenCALPHAD), "reftest", "tdb", "agcu.TDB")
+            if isfile(tdb)
+                db = read_tdb(tdb)
+                f_calphad = calphad_free_energy(db, "FCC_A1", 1000.0)
+
+                grid = UniformGrid1D(N=8, L=50.0)
+                c0 = [0.5 + 0.02 * sin(2π * x / 50.0) for x in grid.x]
+
+                problem = CahnHilliardProblem(CahnHilliardModel(M=1.0, κ=1.0),
+                                              grid, c0, (0.0, 1e-5), f_calphad,
+                                              bc=PeriodicBC())
+                sol = PhaseFields.solve(problem, Euler(); dt=1e-5, adaptive=false)
+
+                @test sol.retcode == ReturnCode.Success
+                @test !any(isnan, sol.u[end])
+
+                # Composition is the conserved variable
+                @test isapprox(sum(sol.u[end]), sum(sol.u[1]), rtol=1e-6)
+
+                # The solve moved: a database-driven right-hand side is not zero
+                @test sol.u[end] != sol.u[1]
+            else
+                @warn "Skipping CALPHAD-driven Cahn-Hilliard solve (agcu.TDB not found)"
+            end
+        end
+    end
 end

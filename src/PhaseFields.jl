@@ -169,12 +169,14 @@ passed to the KKS free energy slot.
 - `T`: Temperature [K]
 
 # Returns
-- A free energy object answering to `free_energy`, `chemical_potential` and `d2f_dc2`.
+- A free energy object answering to `free_energy`, `chemical_potential`,
+  `d2f_dc2`, `free_energy_density` and `chemical_potential_bulk`.
 
 !!! note
-    The returned object fills the KKS free energy slot. It does not implement
-    `chemical_potential_bulk`, so a `CahnHilliardProblem` built with it fails
-    at solve time.
+    The returned object fills both the KKS and the Cahn-Hilliard free energy
+    slots. Every call reads the database and costs tens of milliseconds, so a
+    Cahn-Hilliard solve on a large grid should interpolate a table built once
+    rather than call it per cell.
 
 # Examples
 ```julia

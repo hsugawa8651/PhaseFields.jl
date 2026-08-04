@@ -40,19 +40,30 @@ resolves it and each function behaves as documented.
 Write `PhaseFields.chemical_potential(...)` or
 `OpenCALPHAD.chemical_potential(...)`, and likewise for `savefig_publication`.
 
-### Which free energy slot the CALPHAD wrapper fills
+### Which free energy slots the CALPHAD wrapper fills
 
-`calphad_free_energy` returns an object for the KKS free energy slot.
-It answers to `free_energy`, `chemical_potential` and `d2f_dc2`.
+`calphad_free_energy` returns an object that fills both free energy slots.
+It answers to `free_energy`, `chemical_potential` and `d2f_dc2`, which KKS and
+WBM ask for, and to `free_energy_density` and `chemical_potential_bulk`, which
+Cahn-Hilliard asks for.
 
 ```julia
 f_s = calphad_free_energy(db, "FCC_A1", T)
 f_l = calphad_free_energy(db, "LIQUID", T)
 ```
 
-It does not answer to `chemical_potential_bulk`. A `CahnHilliardProblem` built
-with it constructs without complaint and fails when the solver evaluates the
-right-hand side. Coupling Cahn-Hilliard to CALPHAD is not implemented.
+So the same object drives a `CahnHilliardProblem`:
+
+```julia
+prob = CahnHilliardProblem(model, grid, c0, tspan, f_s)
+sol  = PhaseFields.solve(prob, ROCK2())
+```
+
+!!! warning "Cost"
+    Every call reads the database. One evaluation costs tens of milliseconds,
+    so calling it per cell per stage is impractical beyond a few dozen points:
+    a 64x64 right-hand side takes minutes. Build a table once and interpolate
+    it instead, as `examples/391_calphad_spinodal_2d.jl` does.
 
 ## CALPHAD-Coupled Models
 

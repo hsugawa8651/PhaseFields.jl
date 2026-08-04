@@ -139,7 +139,7 @@ function chemical_potential_bulk_deriv(f::DoubleWellFreeEnergy, c::T) where T<:R
 end
 
 """
-    cahn_hilliard_chemical_potential(model::CahnHilliardModel, f::DoubleWellFreeEnergy,
+    cahn_hilliard_chemical_potential(model::CahnHilliardModel, f,
                                      c::T, ∇²c::T) where T<:Real
 
 Compute total chemical potential including gradient term.
@@ -148,7 +148,9 @@ Compute total chemical potential including gradient term.
 
 # Arguments
 - `model`: CahnHilliardModel parameters
-- `f`: DoubleWellFreeEnergy for bulk contribution
+- `f`: Free energy for the bulk contribution. Any type answering to
+  `chemical_potential_bulk`, such as `DoubleWellFreeEnergy` or the object
+  returned by `calphad_free_energy`
 - `c`: Concentration at current point
 - `∇²c`: Laplacian of concentration
 
@@ -163,7 +165,7 @@ f = DoubleWellFreeEnergy(ρs=5.0, cα=0.3, cβ=0.7)
 ```
 """
 function cahn_hilliard_chemical_potential(model::CahnHilliardModel,
-                                          f::DoubleWellFreeEnergy,
+                                          f,
                                           c::T, ∇²c::T) where T<:Real
     μ_bulk = chemical_potential_bulk(f, c)
     μ_grad = -model.κ * ∇²c
