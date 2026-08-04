@@ -41,12 +41,12 @@ using PhaseFields
 
 # Create model and free energy
 model = CahnHilliardModel(M=1.0, κ=1.0)
-f = DoubleWellFreeEnergy(A=1.0, c_eq_α=0.2, c_eq_β=0.8)
+f = DoubleWellFreeEnergy(ρs=1.0, cα=0.2, cβ=0.8)
 
 # Compute chemical potential
 c = 0.5
 ∇²c = -0.01
-μ = cahn_hilliard_chemical_potential(f, model, c, ∇²c)
+μ = cahn_hilliard_chemical_potential(model, f, c, ∇²c)
 
 # Compute concentration change rate
 ∇²μ = 0.001
@@ -57,7 +57,7 @@ dcdt = cahn_hilliard_rhs(model, ∇²μ)
 
 ```julia
 # Double-well free energy: f(c) = A(c - c_α)²(c - c_β)²
-f = DoubleWellFreeEnergy(A=1.0, c_eq_α=0.2, c_eq_β=0.8)
+f = DoubleWellFreeEnergy(ρs=1.0, cα=0.2, cβ=0.8)
 
 # Evaluate
 energy = free_energy_density(f, 0.5)
